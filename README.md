@@ -36,9 +36,8 @@ A full-stack health & fitness tracking application that uses **Generative AI (Go
 
 1.  **Clone the repo:**
     ```bash
-    git clone [https://github.com/yourusername/health-track-app.git](https://github.com/yourusername/health-track-app.git)
-    ```
-
+    git clone https://github.com/Rohitdhakal1/Ai-Health-Tracker.git
+    
 2.  **Install & Run Backend:**
     ```bash
     cd server
