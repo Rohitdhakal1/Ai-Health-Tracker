@@ -1,7 +1,7 @@
 # 🥗 AI HealthTracker (MERN Stack + TypeScript)
 
-> **Live Demo:** [Insert Your Vercel Link Here]  
-> **Backend API:** [Insert Your Render Link Here]
+> **Live Demo:** [(https://ai-health-tracker-zg2o.vercel.app/)]  
+> **Backend API:** [https://ai-health-tracker.onrender.com]
 
 A full-stack health & fitness tracking application that uses **Generative AI (Google Gemini)** to simplify calorie logging. Users can log meals and workouts using natural language (e.g., *"I ate a burger and ran 5k"*), and the app automatically parses the nutritional data into structured JSON.
 
