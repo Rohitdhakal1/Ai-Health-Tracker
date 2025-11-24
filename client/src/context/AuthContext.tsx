@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import api from "../services/api";
+// import api from "../services/api";
 
 //API: We built a pipe that connects React to Node.
 // Context: We built a "cloud" over our app that holds the User Data.

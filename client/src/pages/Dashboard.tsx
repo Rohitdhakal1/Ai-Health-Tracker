@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
-import { useNavigate } from "react-router-dom";
 import AddFoodModal from "../components/AddFoodModal";
 import AddExerciseModal from "../components/AddExerciseModal";
 
