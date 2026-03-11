@@ -1,5 +1,6 @@
 import mongoose,{Document,Schema} from "mongoose";
 
+// user model definition
 export interface IUser extends Document{
     name:string;
     email:string;
@@ -8,25 +9,18 @@ export interface IUser extends Document{
     age:number;
     height:number;
     activityLevel:'sedentary' | 'light' | 'moderate' | 'active';
-    
-    currentWeight: number; // Needed for BMR Math
-    targetWeight: number;  // Needed for Motivation/Goals
-
+    currentWeight: number; 
+    targetWeight: number;  
     calorieGoal:number;
-
     streak: number;
     lastLogin: Date;
-    
     createdAt:Date;
-
-
 }
 
 const UserSchema:Schema=new Schema({
     name: { type: String, required: true },
-    email: { type: String, required: true, unique: true }, // unique prevents duplicate emails
+    email: { type: String, required: true, unique: true }, 
     password: { type: String, required: true },
-    
     gender:{ type: String, enum: ['male', 'female'], required: true },
     age: { type: Number, required: true },
     height: { type: Number, required: true },
@@ -37,15 +31,12 @@ const UserSchema:Schema=new Schema({
     },
     currentWeight: { type: Number, required: true },
     targetWeight: { type: Number, required: true },
-    
     streak: { type: Number, default: 0 },
     lastLogin: { type: Date, default: null },
-
     calorieGoal: { type: Number, default: 2000 },
 },
 {    
     timestamps:true
 });
-
 
 export default mongoose.model<IUser>('User', UserSchema);

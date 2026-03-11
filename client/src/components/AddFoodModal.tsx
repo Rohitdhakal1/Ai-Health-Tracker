@@ -2,42 +2,34 @@ import { useState } from 'react';
 import api from '../services/api';
 
 interface Props {
-    isOpen: boolean;           // Should we show it?
-    onClose: () => void;       // Function to close it
-    onFoodAdded: () => void;   // Function to refresh the dashboard
+    isOpen: boolean;    
+    onClose: () => void;
+    onFoodAdded: () => void;
 }
 
+// naya meal add karne wala modal
 const AddFoodModal = ({isOpen , onClose , onFoodAdded}: Props)=>{
 
-    // Local state for the form
     const [name, setName] = useState('');
     const [calories, setCalories] = useState('');
-
-    // --- NEW: AI STATE ---
     const [aiQuery, setAiQuery] = useState('');
     const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-
-    // If isOpen is false, return null (render nothing)
     if (!isOpen) return null;
 
 
-    // --- NEW: THE MAGIC FUNCTION ---
+    // AI analyze function
     const handleAnalyze = async () => {
         if (!aiQuery) return;
         
         setIsAnalyzing(true);
         try {
-            // 1. Send text to your new Backend Route
             const { data } = await api.post('/ai/food', { text: aiQuery });
 
-            // 2. The AI returns an Array (e.g., Burger + Fries)
-            // We will sum them up to make it simple for the user
             if (data && data.length > 0) {
                 const totalCals = data.reduce((acc: number, item: any) => acc + item.calories, 0);
                 const combinedNames = data.map((item: any) => item.name).join(' & ');
 
-                // 3. AUTO-FILL THE FORM
                 setName(combinedNames);
                 setCalories(totalCals.toString());
             }
@@ -53,22 +45,17 @@ const AddFoodModal = ({isOpen , onClose , onFoodAdded}: Props)=>{
     const handleSubmit = async(e:React.FormEvent)=>{
         e.preventDefault();
         try {
-            //1. send data to backened
             await api.post('/foods',{
                 name,
                 calories:Number(calories)
             });
 
-            //2. clear Form //reset or close 
             setName('');
             setCalories('');
+            setAiQuery(''); 
 
-            setAiQuery(''); // Clear AI text too
-
-            //3. close modal
             onClose();
 
-            // 4. Tell Dashboard to refresh
             onFoodAdded();
 
         } catch (error) {
@@ -78,12 +65,13 @@ const AddFoodModal = ({isOpen , onClose , onFoodAdded}: Props)=>{
     };
 
     return (
-        <div style={styles.overlay}>
+        <div style={styles.overlay} className="fade-in">
             <div style={styles.modal}>
-                <h2>🍎 Log Meal</h2>
+                <h2 style={styles.title}>Log Meal</h2>
 
-                {/* --- NEW: AI INPUT SECTION --- */}
+                {/* AI section */}
                 <div style={styles.aiSection}>
+                    <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-main)', fontWeight: 600 }}>Use AI to estimate calories</p>
                     <textarea 
                         placeholder="e.g. 'I had 2 boiled eggs and toast'"
                         value={aiQuery}
@@ -95,29 +83,33 @@ const AddFoodModal = ({isOpen , onClose , onFoodAdded}: Props)=>{
                         onClick={handleAnalyze} 
                         disabled={isAnalyzing}
                         style={styles.aiButton}
+                        className="hover-lift"
                     >
-                        {isAnalyzing ? 'Thinking...' : '✨ AI Analyze'}
+                        {isAnalyzing ? 'Thinking...' : 'AI Analyze'}
                     </button>
                 </div>
 
-                <hr style={{ margin: '1rem 0', border: 'none', borderTop: '1px solid #eee' }} />
+                <div style={{ display: 'flex', alignItems: 'center', margin: '1rem 0' }}>
+                    <hr style={{ flex: 1, border: 'none', borderTop: '1px solid var(--accent-soft)' }} />
+                    <span style={{ padding: '0 10px', fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 500 }}>OR ENTER MANUALLY</span>
+                    <hr style={{ flex: 1, border: 'none', borderTop: '1px solid var(--accent-soft)' }} />
+                </div>
 
-                {/* Standard Form (Pre-filled by AI) */}
                 <form onSubmit={handleSubmit} style={styles.form}>
-                    <label style={{fontSize: '0.9rem', fontWeight: 'bold'}}>Food Name</label>
+                    <label style={styles.label}>Food Name</label>
                     <input 
                         type="text" 
-                        placeholder="Food Name" 
+                        placeholder="e.g. Chicken Salad" 
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         style={styles.input}
                         required
                     />
                     
-                    <label style={{fontSize: '0.9rem', fontWeight: 'bold'}}>Calories</label>
+                    <label style={styles.label}>Calories</label>
                     <input 
                         type="number" 
-                        placeholder="Calories" 
+                        placeholder="0" 
                         value={calories}
                         onChange={(e) => setCalories(e.target.value)}
                         style={styles.input}
@@ -125,8 +117,8 @@ const AddFoodModal = ({isOpen , onClose , onFoodAdded}: Props)=>{
                     />
 
                     <div style={styles.buttons}>
-                        <button type="button" onClick={onClose} style={styles.cancelBtn}>Cancel</button>
-                        <button type="submit" style={styles.submitBtn}>Save Food</button>
+                        <button type="button" onClick={onClose} style={styles.cancelBtn} className="hover-lift">Cancel</button>
+                        <button type="submit" style={styles.submitBtn} className="hover-lift">Save Food</button>
                     </div>
                 </form>
             </div>
@@ -137,23 +129,78 @@ const AddFoodModal = ({isOpen , onClose , onFoodAdded}: Props)=>{
 const styles = {
     overlay: {
         position: 'fixed' as const, top: 0, left: 0, right: 0, bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
+        backgroundColor: 'transparent',
+        display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000,
     },
     modal: {
-        backgroundColor: 'white', padding: '2rem', borderRadius: '12px',
-        width: '90%', maxWidth: '400px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+        backgroundColor: 'var(--card-bg)', padding: '2.5rem', borderRadius: '20px',
+        width: '90%', maxWidth: '450px', boxShadow: 'var(--shadow-lg)',
+        border: '1px solid var(--accent-soft)',
     },
-    // New Styles for AI
-    aiSection: { display: 'flex', flexDirection: 'column' as const, gap: '0.5rem' },
-    aiInput: { padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd', minHeight: '60px', fontFamily: 'inherit' },
-    aiButton: { padding: '0.5rem', borderRadius: '8px', border: 'none', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', cursor: 'pointer', fontWeight: 'bold' as const },
-    
-    form: { display: 'flex', flexDirection: 'column' as const, gap: '0.5rem' },
-    input: { padding: '0.75rem', borderRadius: '8px', border: '1px solid #ccc', marginBottom: '0.5rem' },
-    buttons: { display: 'flex', gap: '1rem', marginTop: '1rem' },
-    cancelBtn: { flex: 1, padding: '0.75rem', border: '1px solid #ccc', background: 'white', cursor: 'pointer', borderRadius: '8px' },
-    submitBtn: { flex: 1, padding: '0.75rem', border: 'none', background: '#28a745', color: 'white', cursor: 'pointer', borderRadius: '8px', fontWeight: 'bold' as const }
+    title: {
+        fontSize: '1.5rem',
+        fontWeight: 800,
+        marginBottom: '1.5rem',
+        color: 'var(--text-main)',
+        letterSpacing: '-0.025em',
+        textAlign: 'center' as const,
+    },
+    aiSection: { 
+        display: 'flex', 
+        flexDirection: 'column' as const, 
+        gap: '0.75rem',
+        marginBottom: '1.5rem',
+        padding: '1.25rem',
+        border: '1px solid var(--accent-soft)',
+        borderRadius: '16px',
+        background: 'var(--bg)',
+    },
+    aiInput: { 
+        padding: '12px', 
+        borderRadius: '10px', 
+        border: '1px solid var(--accent-secondary)', 
+        minHeight: '80px', 
+        fontFamily: 'inherit',
+        fontSize: '0.9375rem',
+        resize: 'none' as const,
+        backgroundColor: 'var(--card-bg)',
+    },
+    aiButton: { 
+        padding: '10px', 
+        borderRadius: '10px', 
+        border: 'none', 
+        background: 'var(--primary)', 
+        color: 'var(--text-main)', 
+        cursor: 'pointer', 
+        fontWeight: 600,
+        fontSize: '0.875rem',
+        boxShadow: "0 10px 15px -3px rgba(243, 186, 96, 0.3)",
+    },
+    form: { display: 'flex', flexDirection: 'column' as const, gap: '1rem' },
+    label: { fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' as const, letterSpacing: '0.025em' },
+    input: { padding: '12px', borderRadius: '10px', border: '1px solid var(--accent-secondary)', fontSize: '0.9375rem', transition: 'var(--transition)', backgroundColor: 'var(--card-bg)' },
+    buttons: { display: 'flex', gap: '1rem', marginTop: '1.5rem' },
+    cancelBtn: { 
+        flex: 1, 
+        padding: '12px', 
+        border: '1px solid var(--accent-secondary)', 
+        background: 'var(--card-bg)', 
+        cursor: 'pointer', 
+        borderRadius: '10px', 
+        fontWeight: 600, 
+        color: 'var(--text-muted)',
+    },
+    submitBtn: { 
+        flex: 1, 
+        padding: '12px', 
+        border: 'none', 
+        background: 'var(--primary)', 
+        color: 'var(--text-main)', 
+        cursor: 'pointer', 
+        borderRadius: '10px', 
+        fontWeight: 700,
+        boxShadow: "0 10px 15px -3px rgba(243, 186, 96, 0.3)",
+    }
 };
 
 export default AddFoodModal;

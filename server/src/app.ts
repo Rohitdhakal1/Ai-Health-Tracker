@@ -10,7 +10,7 @@ import aiRoutes from './routes/aiRoutes';
 
 const app: Application = express();
 
-// Middleware
+// main app setup aur routes
 app.use(express.json());
 app.use(cors());
 

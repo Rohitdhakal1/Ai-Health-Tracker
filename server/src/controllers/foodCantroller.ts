@@ -1,29 +1,26 @@
-//Add Food:Saving a meal to the database linked to the user.
+// food tracking controller
 
 import { Response } from 'express';
 import Food from '../models/Food';
 
-// Helper: Get start of today (00:00:00) and end of today (23:59:59)
-// This is crucial for "Daily" tracking
+// date range helper
 const getDayRange = () => {
     const start = new Date();
     start.setHours(0, 0, 0, 0);
 
     const end = new Date();
     end.setHours(23, 59, 59, 999);
-    
+
     return { start, end };
 };
 
-// @desc    Add a new meal
-// @route   POST /api/foods
-// @access  Private (Needs Token)
+// naya food entry
 export const addFood = async (req: any, res: Response) => {
     try {
         const { name, calories, protein, carbs, fat } = req.body;
 
         const food = await Food.create({
-            user: req.user._id, // We get this from the 'protect' middleware!
+            user: req.user._id,
             name,
             calories,
             protein,
@@ -38,14 +35,11 @@ export const addFood = async (req: any, res: Response) => {
     }
 };
 
-// @desc    Get all meals for TODAY
-// @route   GET /api/foods
-// @access  Private
+// fetch daily meals
 export const getFoods = async (req: any, res: Response) => {
     try {
         const { start, end } = getDayRange();
 
-        // Find foods that belong to THIS user AND are between 00:00 and 23:59 today
         const foods = await Food.find({
             user: req.user._id,
             date: { $gte: start, $lte: end }

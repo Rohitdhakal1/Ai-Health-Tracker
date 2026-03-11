@@ -1,7 +1,7 @@
 import { Response } from "express";
 import Exercise from "../models/Exercise";
 
-// Helper: Get start/end of today
+// date helper
 const getDayRange = () => {
     const start = new Date();
     start.setHours(0, 0, 0, 0);
@@ -10,10 +10,8 @@ const getDayRange = () => {
     return { start, end };
 };
 
-// @desc    Add a new exercise
-// @route   POST /api/exercises
-// @access  Private
-export const addExercise = async(req:any, res:Response)=>{
+// log naya exercise
+export const addExercise = async (req: any, res: Response) => {
     try {
         const { activityName, caloriesBurned, durationMinutes } = req.body;
 
@@ -27,14 +25,12 @@ export const addExercise = async(req:any, res:Response)=>{
 
         res.status(201).json(exercise);
     } catch (error) {
-        
+
     }
 };
 
 
-// @desc    Get all exercises for TODAY
-// @route   GET /api/exercises
-// @access  Private
+// workout fetch logic
 export const getExercises = async (req: any, res: Response) => {
     try {
         const { start, end } = getDayRange();

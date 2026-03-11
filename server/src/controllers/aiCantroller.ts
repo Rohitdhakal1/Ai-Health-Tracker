@@ -1,40 +1,45 @@
 import { Request, Response } from 'express';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// Initialize the AI with your Key from .env
-// const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-// const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+// Google AI helpers
+const extractJson = (text: string) => {
+    try {
+        const start = text.indexOf('[');
+        const end = text.lastIndexOf(']');
 
-// --- THE LOGIC ---
+        if (start === -1 || end === -1 || end < start) {
+            return null;
+        }
+
+        const jsonStr = text.substring(start, end + 1);
+        return JSON.parse(jsonStr);
+    } catch (error) {
+        console.error("Extraction error:", error);
+        return null;
+    }
+};
+
+// food tracking AI logic
 export const analyzeFood = async (req: Request, res: Response): Promise<void> => {
     try {
-
-        // 1. Debugging: Check if the key exists now
-        console.log("MY API KEY IS:", process.env.GEMINI_API_KEY ? "Found!" : "MISSING ❌");
-
         if (!process.env.GEMINI_API_KEY) {
             throw new Error("API Key is missing from .env file");
         }
 
-        // 2. Initialize Gemini HERE (Just in time)
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
-        // 1. Get the text (e.g., "I ate 2 eggs and toast")
         const { text } = req.body;
-
         if (!text) {
             res.status(400).json({ message: "Text is required" });
             return;
         }
 
-        // 2. The Prompt Engineering (The most important part!)
-        // We order the AI to speak ONLY in JSON.
         const prompt = `
             You are a nutritionist API. Analyze the text: "${text}".
             Identify food items. Estimate calories, protein, carbs, and fat.
             
-            IMPORTANT: Return ONLY a valid JSON array. Do not use Markdown. Do not write explanations.
+            IMPORTANT: Return ONLY a valid JSON array.
             
             Example Output:
             [
@@ -43,53 +48,68 @@ export const analyzeFood = async (req: Request, res: Response): Promise<void> =>
             ]
         `;
 
-        // 3. Call Google
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const textResponse = response.text();
 
-        // 4. Clean the text (AI sometimes adds backticks like ```json ... ```)
-        const cleanJson = textResponse.replace(/```json|```/g, '').trim();
+        console.log("AI RAW RESPONSE (Food):", textResponse);
 
-        // 5. Convert text to Real JSON object
-        const data = JSON.parse(cleanJson);
+        const data = extractJson(textResponse);
+        if (!data) {
+            console.error("Failed to parse AI response as JSON");
+            res.status(500).json({ message: 'AI returned invalid data structure. Please try again.' });
+            return;
+        }
 
-        // 6. Send to Frontend
         res.json(data);
 
     } catch (error) {
         console.error("AI Error:", error);
-        res.status(500).json({ message: 'Failed to analyze food' });
+        res.status(500).json({ message: 'Failed to analyze food. ' + (error as Error).message });
     }
 };
 
-// --- EXERCISE ANALYZER ---
+// exercise analysis AI logic
 export const analyzeExercise = async (req: Request, res: Response): Promise<void> => {
     try {
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-        
-        // --- USING GEMINI 2.0 FLASH HERE TOO ---
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        if (!process.env.GEMINI_API_KEY) {
+            throw new Error("API Key is missing from .env file");
+        }
+
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
         const { text } = req.body;
+        if (!text) {
+            res.status(400).json({ message: "Text is required" });
+            return;
+        }
 
         const prompt = `
             You are a fitness API. Analyze the text: "${text}".
             Identify the activity. If reps are given, estimate duration and calories.
-            IMPORTANT: Return ONLY a valid JSON array. Do not use Markdown.
+            IMPORTANT: Return ONLY a valid JSON array.
             Example Output:
             [ { "activityName": "Pushups", "caloriesBurned": 50, "durationMinutes": 10 } ]
         `;
 
         const result = await model.generateContent(prompt);
         const response = await result.response;
-        const cleanText = response.text().replace(/```json|```/g, '').trim();
-        const data = JSON.parse(cleanText);
+        const textResponse = response.text();
+
+        console.log("AI RAW RESPONSE (Exercise):", textResponse);
+
+        const data = extractJson(textResponse);
+        if (!data) {
+            console.error("Failed to parse AI response as JSON");
+            res.status(500).json({ message: 'AI returned invalid data structure. Please try again.' });
+            return;
+        }
 
         res.json(data);
 
     } catch (error) {
         console.error("AI Exercise Error:", error);
-        res.status(500).json({ message: 'Failed to analyze exercise' });
+        res.status(500).json({ message: 'Failed to analyze exercise. ' + (error as Error).message });
     }
 };

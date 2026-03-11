@@ -1,10 +1,11 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
+// food item model
 export interface IFood extends Document {
-    user: mongoose.Types.ObjectId; // Link to the User who ate this
+    user: mongoose.Types.ObjectId;
     name: string;
     calories: number;
-    protein?: number; // Optional (?) - not everyone tracks macros
+    protein?: number;
     carbs?: number;
     fat?: number;
     date: Date;
@@ -13,7 +14,7 @@ export interface IFood extends Document {
 const FoodSchema :Schema = new Schema({
     user:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:'User',// IMPORTANT: This links the meal to the User model
+        ref:'User',
         required:true
     },
     name: { type: String, required: true },
@@ -21,9 +22,9 @@ const FoodSchema :Schema = new Schema({
     protein: { type: Number, default: 0 },
     carbs: { type: Number, default: 0 },
     fat: { type: Number, default: 0 },
-    date: { type: Date, default: Date.now } // Defaults to "Right Now"
+    date: { type: Date, default: Date.now }
 },{
-    timestamps:true // adds createdAt and Updated automatically
+    timestamps:true
 });
 
 export default mongoose.model<IFood>('Food',FoodSchema);

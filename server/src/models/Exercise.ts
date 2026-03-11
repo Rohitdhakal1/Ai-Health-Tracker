@@ -1,5 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
+// workout entry model
+
 export interface IExercise extends Document {
     user: mongoose.Types.ObjectId;
     activityName: string;
@@ -8,7 +10,6 @@ export interface IExercise extends Document {
     date: Date;
 }
 
-// 2. Mongoose Schema
 const ExerciseSchema: Schema = new Schema({
     user: { 
         type: mongoose.Schema.Types.ObjectId, 

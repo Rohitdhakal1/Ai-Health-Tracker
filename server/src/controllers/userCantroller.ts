@@ -3,14 +3,13 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User";
 
-// --- HELPER: GENERATE TOKEN ---
 const generateToken = (id: string) => {
     return jwt.sign({ id }, process.env.JWT_SECRET || 'secret', {
         expiresIn: '30d',
     });
 };
 
-// --- HELPER: CALCULATE GOALS ---
+
 const calculateGoals = (data: any) => {
     let bmr = 10 * data.weight + 6.25 * data.height - 5 * data.age;
 
@@ -34,7 +33,6 @@ const calculateGoals = (data: any) => {
     return Math.round(tdee);
 }
 
-// --- HELPER: HANDLE STREAK LOGIC ---
 const updateStreak = async (user: any) => {
     const today = new Date();
     const lastLogin = user.lastLogin ? new Date(user.lastLogin) : null;
@@ -61,7 +59,7 @@ const updateStreak = async (user: any) => {
     yesterday.setDate(yesterday.getDate() - 1);
 
     if (lastLoginString === yesterday.toDateString()) {
-        user.streak += 1; 
+        user.streak += 1;
     } else {
         user.streak = 1; // Broken streak
     }
@@ -71,11 +69,11 @@ const updateStreak = async (user: any) => {
     await user.save();
 };
 
-// --- REGISTER CONTROLLER ---
+// registration handler
 export const registerUser = async (req: Request, res: Response): Promise<void> => {
     try {
         const { name, email, password, gender, age, height, currentWeight, targetWeight, activityLevel } = req.body;
-        
+
         const userExists = await User.findOne({ email });
         if (userExists) {
             res.status(400).json({ message: 'User already exists' });
@@ -99,9 +97,8 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
             currentWeight,
             targetWeight,
             activityLevel,
-            calorieGoal,       // <--- Fixed: Added comma here
-            streak: 1,         // Start at Day 1
-            lastLogin: new Date(), 
+            streak: 1,
+            lastLogin: new Date(),
         });
 
         if (user) {
@@ -123,15 +120,14 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
     }
 }
 
-// --- LOGIN CONTROLLER ---
+// user login handler
 export const loginUser = async (req: Request, res: Response): Promise<void> => {
     try {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
 
         if (user && (await bcrypt.compare(password, user.password))) {
-            
-            // Run Streak Logic
+
             await updateStreak(user);
 
             res.json({

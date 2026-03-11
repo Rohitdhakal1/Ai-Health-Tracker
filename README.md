@@ -1,63 +1,87 @@
-# 🥗 AI HealthTracker (MERN Stack + TypeScript)
+# AI Health Tracker
 
-> **Live Demo:** [(https://ai-health-tracker-zg2o.vercel.app/)]  
+A comprehensive full-stack health and fitness tracking application that utilizes the Google Gemini AI model to facilitate seamless calorie and activity logging through natural language processing.
 
-A full-stack health & fitness tracking application that uses **Generative AI (Google Gemini)** to simplify calorie logging. Users can log meals and workouts using natural language (e.g., *"I ate a burger and ran 5k"*), and the app automatically parses the nutritional data into structured JSON.
+## Project Overview
 
+The AI Health Tracker is designed to reduce the friction of manual data entry in fitness applications. By integrating large language models, the system can parse unstructured text inputs into structured nutritional and exercise data, providing users with an intuitive and efficient way to manage their health goals.
 
-<img width="1920" height="868" alt="screencapture-ai-health-tracker-zg2o-vercel-app-dashboard-2025-11-24-16_07_20" src="https://github.com/user-attachments/assets/1856f353-f1aa-4e19-bdc5-4a04c02a00b5" />
+## Key Features
 
+- **Natural Language Data Parsing**: Integration with Google Gemini Flash to extract calories, macros, and exercise duration from casual text descriptions.
+- **Dynamic Goal Management**: Real-time calculation of calorie requirements based on user-specific physical metrics (BMR) and activity levels.
+- **Engagement Tracking**: A robust streak system that monitors daily activity and login consistency.
+- **Secure Authentication**: Implementation of JSON Web Tokens (JWT) for secure session management and data protection.
+- **SaaS-Grade Dashboard**: A professional interface built with a constrained design system and custom typography (Bricolage Grotesque).
 
-## ✨ Key Features
+## Technology Stack
 
-* **🤖 AI-Powered Logging:** Integrated Google Gemini 2.0 Flash to parse unstructured text inputs into precise nutritional data (Calories, Macros) and exercise metrics.
-* **🔥 Streak System:** Implemented a custom algorithm to track daily user engagement and login streaks, handling date logic across timezones.
-* **🔐 Secure Authentication:** Built a robust auth system using JWT (JSON Web Tokens) with HttpOnly cookies and bcrypt password hashing.
-* **📊 Real-Time Analytics:** Dynamic dashboard that aggregates daily caloric intake vs. BMR & exercise burn using MongoDB aggregations.
-* **📱 Responsive UI:** Mobile-first design using React, Vite, and CSS-in-JS.
+- **Frontend**: React.js, TypeScript, Vite, Context API, Axios.
+- **Backend**: Node.js, Express.js, TypeScript.
+- **Database**: MongoDB with Mongoose ODM.
+- **AI Engine**: Google Generative AI (Gemini Flash).
+- **Styling**: Vanilla CSS with a global design system.
 
-## 🛠️ Tech Stack
+## Project Architecture
 
-* **Frontend:** React.js, TypeScript, Vite, Context API, Axios (Interceptors).
-* **Backend:** Node.js, Express.js, TypeScript.
-* **Database:** MongoDB Atlas (Mongoose ODM).
-* **AI:** Google Generative AI SDK (`@google/generative-ai`).
-* **Deployment:** Vercel (Frontend), Render (Backend).
+The application follows a standard MERN-type architecture with specialized AI middleware:
 
-## 🚀 Architecture
+1. **Client Layer**: A React that captures user inputs and provides visual feedback through a custom dashboard.
+2. **API Layer**: An Express server that handles authentication, data validation, and acts as a secure proxy for the Generative AI SDK.
+3. **AI Integration**: A dedicated controller that prepares system prompts and parses AI responses into reliable JSON structures.
+4. **Data Persistence**: MongoDB collections for Users, Food logs, and Exercise activities.
 
-1.  **Client:** React app sends natural language text to the backend.
-2.  **Server:** Node.js acts as a secure proxy, injecting the system prompt and forwarding the request to Google Gemini.
-3.  **AI Layer:** Gemini parses the text and returns a strict JSON array.
-4.  **Data Layer:** MongoDB stores the relational data, linking `Food` and `Exercise` documents to the `User` ID.
+## Installation and Setup
 
-## 🔧 Installation & Run Locally
+### Prerequisites
 
-1.  **Clone the repo:**
-    ```bash
-    git clone https://github.com/Rohitdhakal1/Ai-Health-Tracker.git
-    
-2.  **Install & Run Backend:**
-    ```bash
-    cd server
-    npm install
-    # Create a .env file with: MONGO_URI, JWT_SECRET, GEMINI_API_KEY
-    npm run dev
-    ```
+- Node.js (v18 or higher)
+- MongoDB Atlas account or local MongoDB instance
+- Google AI Studio API Key (Gemini)
 
-3.  **Install & Run Frontend:**
-    ```bash
-    cd client
-    npm install
-    npm run dev
-    ```
+### Local Development
 
-## 🧠 Lessons Learned
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/Rohitdhakal1/Ai-Health-Tracker.git
+   cd Ai-Health-Tracker
+   ```
 
-* **Type Safety:** leveraging TypeScript interfaces (`IUser`, `IFood`) across the full stack prevented runtime errors and improved developer velocity.
-* **AI Hallucination Control:** Implemented a "Human-in-the-loop" UI where users review AI suggestions before committing to the database.
-* **Global State:** Used React Context to manage authentication state, preventing prop-drilling.
+2. **Configure the Server**
+   ```bash
+   cd server
+   npm install
+   ```
+   Create a `.env` file in the `server` directory:
+   ```env
+   PORT=5000
+   MONGO_URI=your_mongodb_uri
+   JWT_SECRET=your_jwt_secret
+   GEMINI_API_KEY=your_gemini_api_key
+   ```
+   Start the development server:
+   ```bash
+   npm run dev
+   ```
 
----
+3. **Configure the Client**
+   ```bash
+   cd ../client
+   npm install
+   ```
+   Create a `.env` file in the `client` directory:
+   ```env
+   VITE_API_URL=http://localhost:5000/api
+   ```
+   Start the frontend application:
+   ```bash
+   npm run dev
+   ```
 
-*Built by [Rohit dhakal]*
+## Development and Deployment(some error occur its still due frontened not updated and backend error api limit )
+
+The frontend is optimized for deployment on platforms like Vercel, while the backend is designed for environments like Render or Heroku. Ensure all environment variables are correctly configured in your production environment.
+
+## License
+
+This project is open-source and available under the MIT License.
